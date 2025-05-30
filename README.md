@@ -1,10 +1,10 @@
 # MLOps-Forge
 
-[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/TaimoorKhan10/MLOps-Forge/main.yml?branch=main&style=for-the-badge&logo=github-actions&logoColor=white&label=CI/CD)](https://github.com/TaimoorKhan10/MLOps-Forge/actions)
-[![Code Coverage](https://img.shields.io/codecov/c/github/TaimoorKhan10/MLOps-Forge?style=for-the-badge&logo=codecov&logoColor=white)](https://codecov.io/gh/TaimoorKhan10/MLOps-Forge)
-[![Python Version](https://img.shields.io/badge/python-3.9%20%7C%203.10-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![License](https://img.shields.io/github/license/TaimoorKhan10/MLOps-Forge?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](https://github.com/TaimoorKhan10/MLOps-Forge/blob/main/LICENSE)
-[![Stars](https://img.shields.io/github/stars/TaimoorKhan10/MLOps-Forge?style=for-the-badge&logo=github&logoColor=white)](https://github.com/TaimoorKhan10/MLOps-Forge/stargazers)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/TaimoorKhan10/MLOps-Forge/actions)
+[![Coverage](https://img.shields.io/badge/Coverage-Codecov-F01F7A?style=for-the-badge&logo=codecov&logoColor=white)](https://github.com/TaimoorKhan10/MLOps-Forge)
+[![Python](https://img.shields.io/badge/Python-3.9%20%7C%203.10-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](https://github.com/TaimoorKhan10/MLOps-Forge/blob/main/LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/TaimoorKhan10/MLOps-Forge)
 
 A complete production-ready MLOps framework with built-in distributed training, monitoring, and CI/CD. Deploy ML models to production with confidence using our battle-tested infrastructure. This project implements an end-to-end ML pipeline that follows industry best practices for developing, deploying, and maintaining ML models in production environments at scale.
 
@@ -54,17 +54,17 @@ graph TD
     %% Main title and styles
     classDef pipeline fill:#f0f6ff,stroke:#3273dc,color:#3273dc,stroke-width:2px
     classDef component fill:#ffffff,stroke:#209cee,color:#209cee,stroke-width:1.5px
-    classDef note fill:#fffaeb,stroke:#ffdd57,color:#946c00,stroke-width:1px,stroke-dasharray: 5 5
-    classDef infra fill:rgba(0,209,178,0.1),stroke:#00d1b2,color:#00d1b2,stroke-width:1.5px,stroke-dasharray: 5 5
+    classDef note fill:#fffaeb,stroke:#ffdd57,color:#946c00,stroke-width:1px,stroke-dasharray:5 5
+    classDef infra fill:#e3fcf7,stroke:#00d1b2,color:#00d1b2,stroke-width:1.5px,stroke-dasharray:5 5
     
     %% Infrastructure
     subgraph K8S["Kubernetes Cluster"]
         %% Data Pipeline
         subgraph DP["Data Pipeline"]
-            DI[Data Ingestion] :::component
-            DV[Data Validation] :::component
-            FE[Feature Engineering] :::component
-            FSN[Feature Store Integration] :::note
+            DI[Data Ingestion]:::component
+            DV[Data Validation]:::component
+            FE[Feature Engineering]:::component
+            FSN[Feature Store Integration]:::note
             
             DI --> DV
             DV --> FE
@@ -72,10 +72,10 @@ graph TD
         
         %% Model Training
         subgraph MT["Model Training"]
-            ET[Experiment Tracking - MLflow] :::component
-            DT[Distributed Training] :::component
-            ME[Model Evaluation] :::component
-            ABN[A/B Testing Framework] :::note
+            ET[Experiment Tracking - MLflow]:::component
+            DT[Distributed Training]:::component
+            ME[Model Evaluation]:::component
+            ABN[A/B Testing Framework]:::note
             
             ET --> DT
             DT --> ME
@@ -83,19 +83,19 @@ graph TD
         
         %% Model Registry
         subgraph MR["Model Registry"]
-            MV[Model Versioning] :::component
-            MS[Metadata Storage] :::component
-            MCI[CI/CD Integration] :::note
+            MV[Model Versioning]:::component
+            MS[Metadata Storage]:::component
+            MCI[CI/CD Integration]:::note
             
             MV --> MS
         end
         
         %% API Layer
         subgraph API["API Layer"]
-            FA[FastAPI Application] :::component
-            PE[Prediction Endpoints] :::component
-            HM[Health & Metadata APIs] :::component
-            HPA[Horizontal Pod Autoscaling] :::note
+            FA[FastAPI Application]:::component
+            PE[Prediction Endpoints]:::component
+            HM[Health & Metadata APIs]:::component
+            HPA[Horizontal Pod Autoscaling]:::note
             
             FA --> PE
             FA --> HM
@@ -103,17 +103,17 @@ graph TD
         
         %% Monitoring
         subgraph MON["Monitoring"]
-            PM[Prometheus Metrics] :::component
-            GD[Grafana Dashboards] :::component
-            DD[Feature-level Drift Detection] :::component
-            RT[Automated Retraining Triggers] :::component
-            AM[Alert Manager Integration] :::note
+            PM[Prometheus Metrics]:::component
+            GD[Grafana Dashboards]:::component
+            DD[Feature-level Drift Detection]:::component
+            RT[Automated Retraining Triggers]:::component
+            AM[Alert Manager Integration]:::note
             
-            MPT[Model Performance Tracking] :::component
-            DQM[Data Quality Monitoring] :::component
-            ABT[A/B Testing Analytics] :::component
-            LA[Log Aggregation] :::component
-            DT2[Distributed Tracing] :::note
+            MPT[Model Performance Tracking]:::component
+            DQM[Data Quality Monitoring]:::component
+            ABT[A/B Testing Analytics]:::component
+            LA[Log Aggregation]:::component
+            DT2[Distributed Tracing]:::note
             
             PM --> GD
             PM --> DD
@@ -133,7 +133,7 @@ graph TD
     end
     
     %% CI/CD Pipeline
-    CICD[CI/CD Pipeline: GitHub Actions] :::infra
+    CICD[CI/CD Pipeline: GitHub Actions]:::infra
     CICD -->|Deploy| K8S
     
     %% Apply classes
