@@ -35,7 +35,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  test: 
     name: Run Tests
     runs-on: ubuntu-latest
     
