@@ -1,4 +1,4 @@
-# MLOps-Forge
+# MLOps-Forge 
 
 [![CI/CD](https://img.shields.io/badge/CI/CD-passing-success?style=flat-square)](https://github.com/TaimoorKhan10/MLOps-Forge/actions) [![GITHUB ACTIONS](https://img.shields.io/badge/GITHUB_ACTIONS-enabled-blue?style=flat-square)](https://github.com/TaimoorKhan10/MLOps-Forge/actions) [![COVERAGE](https://img.shields.io/badge/COVERAGE-80%25-success?style=flat-square)](https://github.com/TaimoorKhan10/MLOps-Forge) [![CODECOV](https://img.shields.io/badge/CODECOV-enabled-ff69b4?style=flat-square)](https://codecov.io/gh/TaimoorKhan10/MLOps-Forge) [![PYTHON](https://img.shields.io/badge/PYTHON-3.9_|_3.10-blue?style=flat-square)](https://www.python.org/) [![LICENSE](https://img.shields.io/badge/LICENSE-MIT-yellowgreen?style=flat-square)](https://github.com/TaimoorKhan10/MLOps-Forge/blob/master/LICENSE) [![GITHUB](https://img.shields.io/badge/GITHUB-repo-black?style=flat-square)](https://github.com/TaimoorKhan10/MLOps-Forge) [![REPOSITORY](https://img.shields.io/badge/REPOSITORY-MLOps--Forge-black?style=flat-square)](https://github.com/TaimoorKhan10/MLOps-Forge)
 
