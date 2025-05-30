@@ -491,7 +491,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/YourUsername/MLOps-Production-System.git
+   git clone https://github.com/TaimoorKhan10/MLOps-Production-System.git
    cd MLOps-Production-System
    ```
 
