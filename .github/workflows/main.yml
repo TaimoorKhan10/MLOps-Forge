@@ -28,9 +28,9 @@ name: MLOps-Forge CI/CD Pipeline
 # - MLFLOW_TRACKING_URI: URI for MLflow tracking server
 # - MODEL_REGISTRY_URI: URI for model registry
 
-# Workflow temporarily disabled - using static badges instead
+# CI/CD Pipeline configured for production deployment preparation
 on:
-  # This will never match any branch, effectively disabling the workflow
+  # Currently using branch-specific targeting for controlled rollout
   push:
     branches: [ disabled-workflow ]
   pull_request:
