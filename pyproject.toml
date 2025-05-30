@@ -3,7 +3,7 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mlops-forge"  # Using hyphen for PyPI compatibility
+name = "mlops-forge"
 version = "1.0.0"
 description = "A complete production-ready MLOps framework with built-in distributed training, monitoring, and CI/CD."
 authors = [
@@ -26,6 +26,15 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Typing :: Typed"
 ]
+dependencies = [
+    # Core dependencies
+    "numpy>=1.21.0",
+    "pandas>=1.3.0",
+    "scikit-learn>=1.0.0",
+    "torch>=1.9.0",
+    "mlflow>=1.26.0",
+    "pydantic>=1.9.0",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -39,11 +48,12 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/TaimoorKhan10/MLOps-Forge"
-"Bug Tracker" = "https://github.com/TaimoorKhan10/MLOps-Forge/issues"
+Homepage = "https://github.com/TaimoorKhan10/MLOps-Forge"
+Bug-Tracker = "https://github.com/TaimoorKhan10/MLOps-Forge/issues"
 
 [tool.setuptools]
-long-description-file = "README.md"
+package-dir = { "" = "." }
+packages = ["src/mlops_forge"]
 
 [tool.black]
 line-length = 88
