@@ -83,7 +83,7 @@ jobs:
         pytest --benchmark-autosave tests/performance/
         
     - name: Archive performance results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: performance-benchmarks
         path: .benchmarks/
@@ -91,7 +91,7 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     
     steps:
     - uses: actions/checkout@v3
@@ -139,7 +139,7 @@ jobs:
   model_validation:
     name: Validate ML Model
     needs: build
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     
     steps:
@@ -183,7 +183,7 @@ jobs:
       continue-on-error: true
     
     - name: Upload validation results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: model-validation-results
         path: validation_results.json
