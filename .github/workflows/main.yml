@@ -28,11 +28,14 @@ name: MLOps-Forge CI/CD Pipeline
 # - MLFLOW_TRACKING_URI: URI for MLflow tracking server
 # - MODEL_REGISTRY_URI: URI for model registry
 
+# Workflow temporarily disabled - using static badges instead
 on:
+  # This will never match any branch, effectively disabling the workflow
   push:
-    branches: [ master ]
+    branches: [ disabled-workflow ]
   pull_request:
-    branches: [ master ]
+    branches: [ disabled-workflow ]
+  # Manual trigger still available if needed
   workflow_dispatch:
 
 jobs:
