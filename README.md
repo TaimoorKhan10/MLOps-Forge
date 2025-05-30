@@ -1,10 +1,10 @@
 # MLOps-Forge
 
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/TaimoorKhan10/MLOps-Forge/actions)
-[![Coverage](https://img.shields.io/badge/Coverage-Codecov-F01F7A?style=for-the-badge&logo=codecov&logoColor=white)](https://github.com/TaimoorKhan10/MLOps-Forge)
-[![Python](https://img.shields.io/badge/Python-3.9%20%7C%203.10-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](https://github.com/TaimoorKhan10/MLOps-Forge/blob/main/LICENSE)
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/TaimoorKhan10/MLOps-Forge)
+[![PyPI](https://img.shields.io/pypi/v/mlops-forge?color=blue&logo=pypi&logoColor=white)](https://pypi.org/project/mlops-forge/)
+[![Python](https://img.shields.io/badge/Python-3.9%20%7C%203.10-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green?logo=opensourceinitiative&logoColor=white)](https://github.com/TaimoorKhan10/MLOps-Forge/blob/main/LICENSE)
+[![CI/CD](https://img.shields.io/github/actions/workflow/status/TaimoorKhan10/MLOps-Forge/main.yml?label=CI%2FCD&logo=github-actions&logoColor=white)](https://github.com/TaimoorKhan10/MLOps-Forge/actions)
+[![Coverage](https://img.shields.io/codecov/c/github/TaimoorKhan10/MLOps-Forge?logo=codecov&logoColor=white)](https://codecov.io/gh/TaimoorKhan10/MLOps-Forge)
 
 A complete production-ready MLOps framework with built-in distributed training, monitoring, and CI/CD. Deploy ML models to production with confidence using our battle-tested infrastructure. This project implements an end-to-end ML pipeline that follows industry best practices for developing, deploying, and maintaining ML models in production environments at scale.
 
@@ -196,16 +196,17 @@ graph TD
        RETRAIN --> TRAIN
    ```
 
-## 🚦 Getting Started
-
-### Prerequisites
-
-- Python 3.9+ with pip
-- Docker and Docker Compose
-- Kubernetes cluster (local or cloud-based)
-- AWS account (for cloud deployment)
+## 🚀 Quick Start
 
 ### Installation
+
+Install the latest stable version from PyPI:
+
+```bash
+pip install mlops-forge
+```
+
+For development, install from source:
 
 ```bash
 # Clone the repository
@@ -214,12 +215,214 @@ cd MLOps-Forge
 
 # Create and activate virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# On Windows: .\venv\Scripts\activate
+# On macOS/Linux: source venv/bin/activate
 
-# Install dependencies
-pip install -e .
+# Install in development mode with all dependencies
+pip install -e ".[dev]"
 ```
 
+### Prerequisites
+
+- Python 3.9 or 3.10
+- Docker and Docker Compose (for containerization)
+- Kubernetes (for production deployment)
+- Cloud provider account (AWS/GCP/Azure) for cloud deployments
+
+### Configuration
+
+1. **Environment Variables**:
+   Create a `.env` file based on the provided `.env.example`:
+
+   ```
+   # MLflow Configuration
+   MLFLOW_TRACKING_URI=http://mlflow:5000
+   MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+   
+   # AWS Configuration for Deployment
+   AWS_ACCESS_KEY_ID=your-access-key
+   AWS_SECRET_ACCESS_KEY=your-secret-key
+   AWS_REGION=us-west-2
+   
+   # Kubernetes Configuration
+   K8S_NAMESPACE=mlops-production
+   ```
+
+2. **Infrastructure Setup**:
+   ```bash
+   # For local development with Docker Compose
+   docker-compose up -d
+   
+   # For Kubernetes deployment
+   kubectl apply -f infrastructure/kubernetes/
+   ```
+
+## 🧰 Usage
+
+### Data Pipeline
+
+```python
+from mlops_production_system.pipeline import DataPipeline
+
+# Initialize the pipeline
+pipeline = DataPipeline(config_path="config/pipeline_config.yaml")
+
+# Run the pipeline
+processed_data = pipeline.run(input_data_path="data/raw/training_data.csv")
+```
+
+### Model Training
+
+```python
+from mlops_production_system.models import ModelTrainer
+from mlops_production_system.training import distributed_trainer
+
+# For single-node training
+trainer = ModelTrainer(model_config="config/model_config.yaml")
+model = trainer.train(X_train, y_train)
+metrics = trainer.evaluate(X_test, y_test)
+
+# For distributed training
+distributed_trainer.run(
+    model_class="mlops_production_system.models.CustomModel",
+    data_path="data/processed/training_data.parquet",
+    num_nodes=4
+)
+```
+
+### Model Deployment
+
+```bash
+# Deploy model using CLI
+mlops deploy --model-name="my-model" --model-version=1 --environment=production
+
+# Or using the Python API
+from mlops_production_system.deployment import ModelDeployer
+
+deployer = ModelDeployer()
+deployer.deploy(model_name="my-model", model_version=1, environment="production")
+```
+
+### Monitoring
+
+```python
+from mlops_production_system.monitoring import DriftDetector, PerformanceMonitor
+
+# Monitor for drift
+drift_detector = DriftDetector(reference_data="data/reference.parquet")
+drift_results = drift_detector.detect(new_data="data/production_data.parquet")
+
+# Monitor model performance
+performance_monitor = PerformanceMonitor(model_name="my-model", model_version=1)
+performance_metrics = performance_monitor.get_metrics(timeframe="last_24h")
+```
+
+## 🔄 CI/CD Pipeline
+
+The system uses GitHub Actions for CI/CD pipeline, configured in `.github/workflows/main.yml`. The pipeline includes:
+
+1. **Code Quality**:
+   - Linting with flake8
+   - Type checking with mypy
+   - Security scanning with bandit
+
+2. **Testing**:
+   - Unit tests with pytest
+   - Integration tests
+   - Code coverage reporting
+
+3. **Model Validation**:
+   - Performance benchmarking
+   - Model quality checks
+   - Validation against baseline metrics
+
+4. **Deployment**:
+   - Docker image building
+   - Image pushing to container registry
+   - Kubernetes deployment updates
+
+All secrets and credentials are stored securely in GitHub Secrets and only accessed during workflow execution.
+
+## 👨‍💻 Development
+
+### Project Structure
+
+```
+MLOps-Production-System/
+├── .github/                  # GitHub Actions workflows
+├── config/                   # Configuration files
+├── data/                     # Data directories (gitignored)
+├── docs/                     # Documentation
+├── infrastructure/           # Infrastructure as code
+│   ├── docker/               # Docker configurations
+│   ├── kubernetes/           # Kubernetes manifests
+│   └── terraform/            # Terraform for cloud resources
+├── notebooks/                # Jupyter notebooks
+├── scripts/                  # Utility scripts
+├── src/                      # Source code
+│   └── mlops_production_system/
+│       ├── api/              # FastAPI application
+│       ├── models/           # ML models
+│       ├── pipeline/         # Data pipeline
+│       ├── training/         # Training code
+│       ├── monitoring/       # Monitoring tools
+│       └── utils/            # Utilities
+├── tests/                    # Test suite
+├── .env.example              # Example environment variables
+├── Dockerfile                # Main Dockerfile
+├── pyproject.toml            # Project metadata
+└── README.md                 # This file
+```
+
+### Contributing
+
+We follow the GitFlow branching model:
+
+1. Create a feature branch from `develop`: `git checkout -b feature/your-feature`
+2. Make your changes and commit: `git commit -m "Add feature"`
+3. Push your branch: `git push origin feature/your-feature`
+4. Open a Pull Request against the `develop` branch
+
+All PRs must pass CI checks and code review before being merged.
+
+## 🔬 Advanced Usage
+
+### Distributed Training
+
+The system supports distributed training using PyTorch's DistributedDataParallel for efficient multi-node training:
+
+```yaml
+# Example Kubernetes configuration in infrastructure/kubernetes/distributed-training.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: distributed-training
+spec:
+  parallelism: 4
+  template:
+    spec:
+      containers:
+      - name: trainer
+        image: your-registry/mlops-trainer:latest
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        env:
+        - name: WORLD_SIZE
+          value: "4"
+```
+
+### A/B Testing
+
+The A/B testing framework allows comparing multiple models in production:
+
+```python
+from mlops_production_system.monitoring import ABTestingFramework
+
+# Set up A/B test between two models
+ab_test = ABTestingFramework()
+ab_test.create_experiment(
+    name="pricing_model_comparison",
 ### Configuration
 
 1. **Environment Variables**:

@@ -3,11 +3,25 @@ from setuptools import setup, find_packages
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-with open("requirements.txt", "r", encoding="utf-8") as f:
-    requirements = f.read().splitlines()
+# Core dependencies
+requirements = [
+    "scikit-learn>=1.3.0",
+    "pandas>=2.1.0",
+    "numpy>=1.24.3",
+    "torch>=2.0.1",
+    "feast>=0.30.1",
+    "fastapi>=0.103.1",
+    "uvicorn>=0.23.2",
+    "pydantic>=2.4.2",
+    "python-dotenv>=1.0.0",
+    "mlflow>=2.7.1",
+    "dvc>=3.21.1",
+    "prometheus-client>=0.17.1",
+    "loguru>=0.7.0"
+]
 
 setup(
-    name="mlops_forge",
+    name="mlops-forge",  # Using hyphen for PyPI compatibility
     version="1.0.0",
     author="Taimoor Khan",
     author_email="contact@taimoorkhan.dev",

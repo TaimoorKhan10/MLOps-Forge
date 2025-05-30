@@ -16,26 +16,22 @@
 
 name: MLOps-Forge CI/CD Pipeline
 
-# This workflow runs tests, builds Docker images, and deploys to Kubernetes
+# This workflow runs tests, builds Docker images, and runs model validation
 # Before using this workflow, you need to set up the following secrets in your GitHub repository:
 # - CODECOV_TOKEN: Token for uploading coverage reports to Codecov
 # - DOCKERHUB_USERNAME: Your Docker Hub username
 # - DOCKERHUB_TOKEN: Your Docker Hub access token
-# - AWS_ACCESS_KEY_ID: AWS access key for EKS deployment
-# - AWS_SECRET_ACCESS_KEY: AWS secret key for EKS deployment
-# - AWS_REGION: AWS region for EKS deployment
-# - EKS_CLUSTER_NAME: Name of your EKS cluster
 # - MLFLOW_TRACKING_URI: URI for MLflow tracking server
 # - MODEL_REGISTRY_URI: URI for model registry
+# - PYPI_API_TOKEN: API token for PyPI (for release workflow)
 
-# CI/CD Pipeline configured for production deployment preparation
+# CI/CD Pipeline for testing and validation
 on:
-  # Currently using branch-specific targeting for controlled rollout
   push:
-    branches: [ disabled-workflow ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ disabled-workflow ]
-  # Manual trigger still available if needed
+    branches: [ main, develop ]
+  # Manual trigger
   workflow_dispatch:
 
 jobs:
