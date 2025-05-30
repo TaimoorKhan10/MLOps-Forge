@@ -90,6 +90,41 @@ class DataLoader:
         
         return data
     
+    def save_data(self, data: pd.DataFrame, file_name: str, output_dir: Optional[Union[str, Path]] = None) -> Path:
+        """Save data to file.
+        
+        Args:
+            data: DataFrame to save.
+            file_name: Name of the output file.
+            output_dir: Directory to save the file. If None, uses processed data directory.
+            
+        Returns:
+            Path to the saved file.
+            
+        Raises:
+            ValueError: If the file format is not supported.
+        """
+        output_dir = output_dir or settings.DATA.PROCESSED_DATA_DIR
+        output_dir = Path(output_dir)
+        output_dir.mkdir(exist_ok=True, parents=True)
+        
+        file_path = output_dir / file_name
+        
+        # Handle different file formats
+        if file_path.suffix == ".csv":
+            logger.info(f"Saving CSV data to {file_path}")
+            data.to_csv(file_path, index=False)
+        elif file_path.suffix == ".parquet":
+            logger.info(f"Saving Parquet data to {file_path}")
+            data.to_parquet(file_path, index=False)
+        elif file_path.suffix == ".json":
+            logger.info(f"Saving JSON data to {file_path}")
+            data.to_json(file_path, orient="records")
+        else:
+            raise ValueError(f"Unsupported file format: {file_path.suffix}")
+            
+        return file_path
+    
     def split_data(
         self, 
         data: pd.DataFrame, 
@@ -107,6 +142,7 @@ class DataLoader:
                 If None, uses settings.DATA.TRAIN_TEST_SPLIT_RATIO.
             val_size: Size of the validation set (proportion of the train set).
                 If None, uses settings.DATA.VALIDATION_SPLIT_RATIO.
+                If 0, no validation set is created.
             random_state: Random state for reproducibility.
                 If None, uses settings.DATA.RANDOM_STATE.
         
@@ -114,8 +150,8 @@ class DataLoader:
             Dictionary containing the split data:
                 - X_train: Features for training
                 - y_train: Targets for training
-                - X_val: Features for validation
-                - y_val: Targets for validation
+                - X_val: Features for validation (only if val_size > 0)
+                - y_val: Targets for validation (only if val_size > 0)
                 - X_test: Features for testing
                 - y_test: Targets for testing
         """
@@ -123,7 +159,7 @@ class DataLoader:
         
         # Use default values from settings if not provided
         test_size = test_size or settings.DATA.TRAIN_TEST_SPLIT_RATIO
-        val_size = val_size or settings.DATA.VALIDATION_SPLIT_RATIO
+        val_size = val_size if val_size is not None else settings.DATA.VALIDATION_SPLIT_RATIO
         random_state = random_state or settings.DATA.RANDOM_STATE
         
         # Extract features and target
@@ -135,19 +171,31 @@ class DataLoader:
             X, y, test_size=test_size, random_state=random_state
         )
         
-        # Second split: train and val
-        X_train, X_val, y_train, y_val = train_test_split(
-            X_train_val, y_train_val, test_size=val_size, random_state=random_state
-        )
-        
-        return {
-            "X_train": X_train,
-            "y_train": y_train,
-            "X_val": X_val,
-            "y_val": y_val,
+        result = {
             "X_test": X_test,
             "y_test": y_test,
         }
+        
+        # Second split: train and val (only if val_size > 0)
+        if val_size > 0:
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_train_val, y_train_val, test_size=val_size, random_state=random_state
+            )
+            
+            result.update({
+                "X_train": X_train,
+                "y_train": y_train,
+                "X_val": X_val,
+                "y_val": y_val,
+            })
+        else:
+            # No validation split needed
+            result.update({
+                "X_train": X_train_val,
+                "y_train": y_train_val,
+            })
+        
+        return result
     
     def save_processed_data(
         self, 
