@@ -1,0 +1,314 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: distributed-training-config
+  namespace: mlops
+data:
+  MLFLOW_TRACKING_URI: "http://mlflow-service:5000"
+  MLFLOW_EXPERIMENT_NAME: "distributed-training"
+  MASTER_ADDR: "training-master"
+  MASTER_PORT: "29500"
+  NUM_WORKERS: "4"
+  BATCH_SIZE: "64"
+  LEARNING_RATE: "0.001"
+  NUM_EPOCHS: "10"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: training-master
+  namespace: mlops
+spec:
+  selector:
+    app: training-master
+  ports:
+  - port: 29500
+    targetPort: 29500
+  clusterIP: None  # Headless service for distributed training
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: training-master
+  namespace: mlops
+spec:
+  serviceName: "training-master"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: training-master
+  template:
+    metadata:
+      labels:
+        app: training-master
+    spec:
+      containers:
+      - name: training-master
+        image: ${DOCKERHUB_USERNAME}/mlops-forge:latest
+        command: 
+        - "python"
+        - "-m"
+        - "mlops_forge.training.distributed_trainer"
+        - "--master"
+        - "--num-workers=$(NUM_WORKERS)"
+        - "--dataset=$(DATASET)"
+        - "--batch-size=$(BATCH_SIZE)"
+        - "--learning-rate=$(LEARNING_RATE)"
+        - "--epochs=$(NUM_EPOCHS)"
+        env:
+        - name: MASTER_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: MASTER_ADDR
+        - name: MASTER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: MASTER_PORT
+        - name: NUM_WORKERS
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: NUM_WORKERS
+        - name: BATCH_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: BATCH_SIZE
+        - name: LEARNING_RATE
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: LEARNING_RATE
+        - name: NUM_EPOCHS
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: NUM_EPOCHS
+        - name: MLFLOW_TRACKING_URI
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: MLFLOW_TRACKING_URI
+        - name: MLFLOW_EXPERIMENT_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: MLFLOW_EXPERIMENT_NAME
+        - name: DATASET
+          value: "/data/training/dataset.csv"
+        - name: RANK
+          value: "0"
+        - name: WORLD_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: NUM_WORKERS
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            memory: 8Gi
+            cpu: 4
+          requests:
+            memory: 4Gi
+            cpu: 2
+        volumeMounts:
+        - name: data-volume
+          mountPath: /data
+        - name: model-volume
+          mountPath: /app/models
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: training-data-pvc
+      - name: model-volume
+        persistentVolumeClaim:
+          claimName: model-registry-pvc
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: training-worker
+  namespace: mlops
+spec:
+  serviceName: "training-worker"
+  replicas: 4  # Number of worker nodes
+  selector:
+    matchLabels:
+      app: training-worker
+  template:
+    metadata:
+      labels:
+        app: training-worker
+    spec:
+      containers:
+      - name: training-worker
+        image: ${DOCKERHUB_USERNAME}/mlops-forge:latest
+        command: 
+        - "python"
+        - "-m"
+        - "mlops_forge.training.distributed_trainer"
+        - "--worker"
+        - "--num-workers=$(NUM_WORKERS)"
+        - "--dataset=$(DATASET)"
+        - "--batch-size=$(BATCH_SIZE)"
+        - "--learning-rate=$(LEARNING_RATE)"
+        - "--epochs=$(NUM_EPOCHS)"
+        env:
+        - name: MASTER_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: MASTER_ADDR
+        - name: MASTER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: MASTER_PORT
+        - name: NUM_WORKERS
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: NUM_WORKERS
+        - name: BATCH_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: BATCH_SIZE
+        - name: LEARNING_RATE
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: LEARNING_RATE
+        - name: NUM_EPOCHS
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: NUM_EPOCHS
+        - name: MLFLOW_TRACKING_URI
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: MLFLOW_TRACKING_URI
+        - name: MLFLOW_EXPERIMENT_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: MLFLOW_EXPERIMENT_NAME
+        - name: DATASET
+          value: "/data/training/dataset.csv"
+        - name: RANK
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: WORLD_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-training-config
+              key: NUM_WORKERS
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            memory: 8Gi
+            cpu: 4
+          requests:
+            memory: 4Gi
+            cpu: 2
+        volumeMounts:
+        - name: data-volume
+          mountPath: /data
+        - name: model-volume
+          mountPath: /app/models
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: training-data-pvc
+      - name: model-volume
+        persistentVolumeClaim:
+          claimName: model-registry-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: training-data-pvc
+  namespace: mlops
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: efs-sc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-registry-pvc
+  namespace: mlops
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: efs-sc
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: distributed-training-job
+  namespace: mlops
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+      - name: training-controller
+        image: ${DOCKERHUB_USERNAME}/mlops-forge:latest
+        command:
+        - "bash"
+        - "-c"
+        - |
+          echo "Starting distributed training job..."
+          kubectl wait --for=condition=ready pod -l app=training-master -n mlops --timeout=300s
+          kubectl wait --for=condition=ready pod -l app=training-worker -n mlops --timeout=300s
+          echo "All pods are ready. Training in progress..."
+          kubectl logs -f training-master-0 -n mlops
+          echo "Training job completed."
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+      serviceAccountName: mlops-training-sa
+      restartPolicy: Never
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mlops-training-sa
+  namespace: mlops
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace: mlops
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: mlops
+subjects:
+- kind: ServiceAccount
+  name: mlops-training-sa
+  namespace: mlops
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io

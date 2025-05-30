@@ -1,0 +1,139 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlops-api
+  namespace: mlops
+  labels:
+    app: mlops-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mlops-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: mlops-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8001"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: api
+        image: yourusername/mlops-forge:latest
+        command: ["mlops-serve"]
+        args: ["--host", "0.0.0.0", "--port", "8000"]
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 8001
+          name: metrics
+        env:
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: mlops-config
+              key: log_level
+        - name: MODEL_PATH
+          value: "/app/models/random_forest_model.joblib"
+        volumeMounts:
+        - name: models-volume
+          mountPath: /app/models
+        - name: data-volume
+          mountPath: /app/data
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 20
+      
+      - name: monitoring
+        image: yourusername/mlops-forge:latest
+        command: ["mlops-monitor", "start-prometheus", "--port", "8001"]
+        ports:
+        - containerPort: 8001
+          name: metrics
+        volumeMounts:
+        - name: models-volume
+          mountPath: /app/models
+        - name: data-volume
+          mountPath: /app/data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+      
+      volumes:
+      - name: models-volume
+        persistentVolumeClaim:
+          claimName: models-pvc
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: data-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow
+  namespace: mlops
+  labels:
+    app: mlflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow
+  template:
+    metadata:
+      labels:
+        app: mlflow
+    spec:
+      containers:
+      - name: mlflow
+        image: yourusername/mlops-forge:latest
+        command: ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000", "--backend-store-uri", "sqlite:///mlflow.db", "--default-artifact-root", "/app/mlruns"]
+        ports:
+        - containerPort: 5000
+          name: http
+        volumeMounts:
+        - name: mlflow-volume
+          mountPath: /app/mlruns
+        - name: mlflow-db-volume
+          mountPath: /app/mlflow.db
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+      volumes:
+      - name: mlflow-volume
+        persistentVolumeClaim:
+          claimName: mlflow-pvc
+      - name: mlflow-db-volume
+        persistentVolumeClaim:
+          claimName: mlflow-db-pvc

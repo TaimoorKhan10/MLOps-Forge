@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlops-config
+  namespace: mlops
+data:
+  log_level: "INFO"
+  api_debug: "false"
+  api_reload: "false"
+  api_workers: "1"
+  prometheus_port: "8001"
+  grafana_port: "3000"

@@ -1,0 +1,60 @@
+# GPU-enabled Dockerfile for MLOps Production System
+# Base image with CUDA support
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 \
+    python3-pip \
+    python3-dev \
+    build-essential \
+    git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Update pip
+RUN python3 -m pip install --upgrade pip
+
+# Install PyTorch with CUDA support
+RUN pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118
+
+# Copy requirements file
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install -r requirements.txt
+
+# Copy project files
+COPY . .
+
+# Install the package
+RUN pip install -e .
+
+# Set up MLflow
+RUN mkdir -p /mlflow/artifacts
+
+# Environment variables that can be overridden at runtime
+ENV MODEL_DIR=/app/models \
+    MLFLOW_TRACKING_URI=http://mlflow:5000 \
+    PROMETHEUS_MULTIPROC_DIR=/tmp \
+    API_HOST=0.0.0.0 \
+    API_PORT=8000
+
+# Expose ports for API, Prometheus metrics
+EXPOSE 8000 8001
+
+# Default command to run the API server
+CMD ["python", "-m", "mlops_forge.api.api"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1

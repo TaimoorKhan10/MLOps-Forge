@@ -1,0 +1,40 @@
+# Core ML libraries
+scikit-learn==1.3.0
+pandas==2.1.0
+numpy==1.24.3
+torch==2.0.1
+feast==0.30.1
+
+# API and web
+fastapi==0.103.1
+uvicorn==0.23.2
+pydantic==2.4.2
+python-dotenv==1.0.0
+httpx==0.24.1
+
+# MLOps and experiment tracking
+mlflow==2.7.1
+dvc==3.21.1
+optuna==3.3.0
+
+# Testing
+pytest==7.4.0
+pytest-cov==4.1.0
+great-expectations==0.17.9
+
+# Monitoring
+prometheus-client==0.17.1
+evidently==0.4.2
+grafana-dashboard==0.1.1
+
+# Containerization and deployment
+docker==6.1.3
+kubernetes==28.1.0
+
+# Utilities
+loguru==0.7.0
+typer==0.9.0
+black==23.7.0
+isort==5.12.0
+flake8==6.1.0
+pre-commit==3.3.3
